@@ -1,0 +1,26 @@
+{
+  "name": "twitter-clone",
+  "version": "1.0.0",
+  "description": "Twitter clone, written in React, Flux, and Rails",
+  "main": "index.js",
+  "babel": {
+    "presets": [
+      "react",
+      "es2015"
+    ]
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Paul Bamberg",
+  "license": "ISC",
+  "dependencies": {
+    "babel-core": "^6.18.0",
+    "babel-loader": "^6.2.7",
+    "node-pre-gyp": "^0.6.31",
+    "webpack": "^1.13.3"
+  }
+}
