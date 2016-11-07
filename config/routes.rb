@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
 
+  resources :tweets
   get 'profile', to: 'profile#index'
   patch 'profile', to: 'profile#update'
 
