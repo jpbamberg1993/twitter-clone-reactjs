@@ -13,6 +13,7 @@ gem 'uglifier', '>= 1.3.0'
 # gem 'therubyracer', platforms: :ruby
 
 gem 'react-rails', '~> 1.9'
+gem 'devise'
 
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
