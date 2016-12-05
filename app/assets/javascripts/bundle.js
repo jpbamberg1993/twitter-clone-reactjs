@@ -40,30 +40,309 @@
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /*!**************************************!*\
   !*** ./app/assets/frontend/main.jsx ***!
   \**************************************/
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+	
+	var _Index = __webpack_require__(/*! ./components/Index */ 178);
+	
+	var _Index2 = _interopRequireDefault(_Index);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var documentReady = function documentReady() {
+	  var reactNode = document.getElementById('react');
+	  if (reactNode) {
+	    ReactDOM.render(React.createElement(_Index2.default, null), reactNode);
+	  }
+	};
+	
+	$(documentReady);
+
+/***/ },
+
+/***/ 3:
+/*!******************************!*\
+  !*** ./~/process/browser.js ***!
+  \******************************/
+/***/ function(module, exports) {
+
+	// shim for using process in browser
+	var process = module.exports = {};
+	
+	// cached from whatever global is present so that test runners that stub it
+	// don't break things.  But we need to wrap it in a try catch in case it is
+	// wrapped in strict mode code which doesn't define any globals.  It's inside a
+	// function because try/catches deoptimize in certain engines.
+	
+	var cachedSetTimeout;
+	var cachedClearTimeout;
+	
+	function defaultSetTimout() {
+	    throw new Error('setTimeout has not been defined');
+	}
+	function defaultClearTimeout () {
+	    throw new Error('clearTimeout has not been defined');
+	}
+	(function () {
+	    try {
+	        if (typeof setTimeout === 'function') {
+	            cachedSetTimeout = setTimeout;
+	        } else {
+	            cachedSetTimeout = defaultSetTimout;
+	        }
+	    } catch (e) {
+	        cachedSetTimeout = defaultSetTimout;
+	    }
+	    try {
+	        if (typeof clearTimeout === 'function') {
+	            cachedClearTimeout = clearTimeout;
+	        } else {
+	            cachedClearTimeout = defaultClearTimeout;
+	        }
+	    } catch (e) {
+	        cachedClearTimeout = defaultClearTimeout;
+	    }
+	} ())
+	function runTimeout(fun) {
+	    if (cachedSetTimeout === setTimeout) {
+	        //normal enviroments in sane situations
+	        return setTimeout(fun, 0);
+	    }
+	    // if setTimeout wasn't available but was latter defined
+	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+	        cachedSetTimeout = setTimeout;
+	        return setTimeout(fun, 0);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedSetTimeout(fun, 0);
+	    } catch(e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+	            return cachedSetTimeout.call(null, fun, 0);
+	        } catch(e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+	            return cachedSetTimeout.call(this, fun, 0);
+	        }
+	    }
+	
+	
+	}
+	function runClearTimeout(marker) {
+	    if (cachedClearTimeout === clearTimeout) {
+	        //normal enviroments in sane situations
+	        return clearTimeout(marker);
+	    }
+	    // if clearTimeout wasn't available but was latter defined
+	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+	        cachedClearTimeout = clearTimeout;
+	        return clearTimeout(marker);
+	    }
+	    try {
+	        // when when somebody has screwed with setTimeout but no I.E. maddness
+	        return cachedClearTimeout(marker);
+	    } catch (e){
+	        try {
+	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+	            return cachedClearTimeout.call(null, marker);
+	        } catch (e){
+	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+	            return cachedClearTimeout.call(this, marker);
+	        }
+	    }
+	
+	
+	
+	}
+	var queue = [];
+	var draining = false;
+	var currentQueue;
+	var queueIndex = -1;
+	
+	function cleanUpNextTick() {
+	    if (!draining || !currentQueue) {
+	        return;
+	    }
+	    draining = false;
+	    if (currentQueue.length) {
+	        queue = currentQueue.concat(queue);
+	    } else {
+	        queueIndex = -1;
+	    }
+	    if (queue.length) {
+	        drainQueue();
+	    }
+	}
+	
+	function drainQueue() {
+	    if (draining) {
+	        return;
+	    }
+	    var timeout = runTimeout(cleanUpNextTick);
+	    draining = true;
+	
+	    var len = queue.length;
+	    while(len) {
+	        currentQueue = queue;
+	        queue = [];
+	        while (++queueIndex < len) {
+	            if (currentQueue) {
+	                currentQueue[queueIndex].run();
+	            }
+	        }
+	        queueIndex = -1;
+	        len = queue.length;
+	    }
+	    currentQueue = null;
+	    draining = false;
+	    runClearTimeout(timeout);
+	}
+	
+	process.nextTick = function (fun) {
+	    var args = new Array(arguments.length - 1);
+	    if (arguments.length > 1) {
+	        for (var i = 1; i < arguments.length; i++) {
+	            args[i - 1] = arguments[i];
+	        }
+	    }
+	    queue.push(new Item(fun, args));
+	    if (queue.length === 1 && !draining) {
+	        runTimeout(drainQueue);
+	    }
+	};
+	
+	// v8 likes predictible objects
+	function Item(fun, array) {
+	    this.fun = fun;
+	    this.array = array;
+	}
+	Item.prototype.run = function () {
+	    this.fun.apply(null, this.array);
+	};
+	process.title = 'browser';
+	process.browser = true;
+	process.env = {};
+	process.argv = [];
+	process.version = ''; // empty string to avoid regexp issues
+	process.versions = {};
+	
+	function noop() {}
+	
+	process.on = noop;
+	process.addListener = noop;
+	process.once = noop;
+	process.off = noop;
+	process.removeListener = noop;
+	process.removeAllListeners = noop;
+	process.emit = noop;
+	
+	process.binding = function (name) {
+	    throw new Error('process.binding is not supported');
+	};
+	
+	process.cwd = function () { return '/' };
+	process.chdir = function (dir) {
+	    throw new Error('process.chdir is not supported');
+	};
+	process.umask = function() { return 0; };
+
+
+/***/ },
+
+/***/ 8:
+/*!*********************************!*\
+  !*** ./~/fbjs/lib/invariant.js ***!
+  \*********************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	/* WEBPACK VAR INJECTION */(function(process) {/**
+	 * Copyright (c) 2013-present, Facebook, Inc.
+	 * All rights reserved.
+	 *
+	 * This source code is licensed under the BSD-style license found in the
+	 * LICENSE file in the root directory of this source tree. An additional grant
+	 * of patent rights can be found in the PATENTS file in the same directory.
+	 *
+	 */
+	
+	'use strict';
+	
+	/**
+	 * Use invariant() to assert state which your program assumes to be true.
+	 *
+	 * Provide sprintf-style format (only %s is supported) and arguments
+	 * to provide information about what broke and what you were
+	 * expecting.
+	 *
+	 * The invariant message will be stripped in production, but the invariant
+	 * will remain to ensure logic does not differ in production.
+	 */
+	
+	function invariant(condition, format, a, b, c, d, e, f) {
+	  if (process.env.NODE_ENV !== 'production') {
+	    if (format === undefined) {
+	      throw new Error('invariant requires an error message argument');
+	    }
+	  }
+	
+	  if (!condition) {
+	    var error;
+	    if (format === undefined) {
+	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
+	    } else {
+	      var args = [a, b, c, d, e, f];
+	      var argIndex = 0;
+	      error = new Error(format.replace(/%s/g, function () {
+	        return args[argIndex++];
+	      }));
+	      error.name = 'Invariant Violation';
+	    }
+	
+	    error.framesToPop = 1; // we don't care about invariant's own frame
+	    throw error;
+	  }
+	}
+	
+	module.exports = invariant;
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
+
+/***/ },
+
+/***/ 178:
+/*!**************************************************!*\
+  !*** ./app/assets/frontend/components/Index.jsx ***!
+  \**************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
 	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _TweetBox = __webpack_require__(/*! ./components/TweetBox */ 1);
+	var _TweetBox = __webpack_require__(/*! ./TweetBox */ 179);
 	
 	var _TweetBox2 = _interopRequireDefault(_TweetBox);
 	
-	var _TweetList = __webpack_require__(/*! ./components/TweetList */ 2);
+	var _TweetList = __webpack_require__(/*! ./TweetList */ 187);
 	
 	var _TweetList2 = _interopRequireDefault(_TweetList);
 	
-	var _TweetStore = __webpack_require__(/*! ./stores/TweetStore */ 13);
+	var _TweetStore = __webpack_require__(/*! ../stores/TweetStore */ 189);
 	
 	var _TweetStore2 = _interopRequireDefault(_TweetStore);
 	
-	var _TweetActions = __webpack_require__(/*! ./actions/TweetActions */ 4);
+	var _TweetActions = __webpack_require__(/*! ../actions/TweetActions */ 180);
 	
 	var _TweetActions2 = _interopRequireDefault(_TweetActions);
 	
@@ -81,20 +360,20 @@
 	  return { tweetsList: _TweetStore2.default.getAll() };
 	};
 	
-	var Main = function (_React$Component) {
-	  _inherits(Main, _React$Component);
+	var Index = function (_React$Component) {
+	  _inherits(Index, _React$Component);
 	
-	  function Main(props) {
-	    _classCallCheck(this, Main);
+	  function Index(props) {
+	    _classCallCheck(this, Index);
 	
-	    var _this = _possibleConstructorReturn(this, (Main.__proto__ || Object.getPrototypeOf(Main)).call(this, props));
+	    var _this = _possibleConstructorReturn(this, (Index.__proto__ || Object.getPrototypeOf(Index)).call(this, props));
 	
 	    _this.state = getAppState();
 	    _this._onChange = _this._onChange.bind(_this);
 	    return _this;
 	  }
 	
-	  _createClass(Main, [{
+	  _createClass(Index, [{
 	    key: "componentDidMount",
 	    value: function componentDidMount() {
 	      _TweetStore2.default.addChangeListener(this._onChange);
@@ -121,20 +400,14 @@
 	    }
 	  }]);
 	
-	  return Main;
+	  return Index;
 	}(React.Component);
 	
-	var documentReady = function documentReady() {
-	  var reactNode = document.getElementById('react');
-	  if (reactNode) {
-	    ReactDOM.render(React.createElement(Main, null), reactNode);
-	  }
-	};
-	
-	$(documentReady);
+	exports.default = Index;
 
 /***/ },
-/* 1 */
+
+/***/ 179:
 /*!*****************************************************!*\
   !*** ./app/assets/frontend/components/TweetBox.jsx ***!
   \*****************************************************/
@@ -148,7 +421,7 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _TweetActions = __webpack_require__(/*! ../actions/TweetActions */ 4);
+	var _TweetActions = __webpack_require__(/*! ../actions/TweetActions */ 180);
 	
 	var _TweetActions2 = _interopRequireDefault(_TweetActions);
 	
@@ -211,129 +484,8 @@
 	exports.default = TweetBox;
 
 /***/ },
-/* 2 */
-/*!******************************************************!*\
-  !*** ./app/assets/frontend/components/TweetList.jsx ***!
-  \******************************************************/
-/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	var _Tweet = __webpack_require__(/*! ./Tweet */ 3);
-	
-	var _Tweet2 = _interopRequireDefault(_Tweet);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var TweetList = function (_React$Component) {
-	  _inherits(TweetList, _React$Component);
-	
-	  function TweetList() {
-	    _classCallCheck(this, TweetList);
-	
-	    return _possibleConstructorReturn(this, (TweetList.__proto__ || Object.getPrototypeOf(TweetList)).apply(this, arguments));
-	  }
-	
-	  _createClass(TweetList, [{
-	    key: "render",
-	    value: function render() {
-	      var tweets = this.props.tweets.map(function (tweet) {
-	        return React.createElement(_Tweet2.default, _extends({ key: tweet.id }, tweet));
-	      });
-	      return React.createElement(
-	        "div",
-	        null,
-	        React.createElement(
-	          "ul",
-	          { className: "collection" },
-	          tweets
-	        )
-	      );
-	    }
-	  }]);
-	
-	  return TweetList;
-	}(React.Component);
-	
-	exports.default = TweetList;
-
-/***/ },
-/* 3 */
-/*!**************************************************!*\
-  !*** ./app/assets/frontend/components/Tweet.jsx ***!
-  \**************************************************/
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-	
-	var Tweet = function (_React$Component) {
-	  _inherits(Tweet, _React$Component);
-	
-	  function Tweet() {
-	    _classCallCheck(this, Tweet);
-	
-	    return _possibleConstructorReturn(this, (Tweet.__proto__ || Object.getPrototypeOf(Tweet)).apply(this, arguments));
-	  }
-	
-	  _createClass(Tweet, [{
-	    key: "render",
-	    value: function render() {
-	      return React.createElement(
-	        "li",
-	        { className: "collection-item avatar" },
-	        React.createElement("img", { className: "circle", src: this.props.gravatar }),
-	        React.createElement(
-	          "span",
-	          { className: "title" },
-	          this.props.name
-	        ),
-	        React.createElement(
-	          "time",
-	          null,
-	          this.props.formattedDate
-	        ),
-	        React.createElement(
-	          "p",
-	          null,
-	          this.props.body
-	        )
-	      );
-	    }
-	  }]);
-	
-	  return Tweet;
-	}(React.Component);
-	
-	exports.default = Tweet;
-
-/***/ },
-/* 4 */
+/***/ 180:
 /*!******************************************************!*\
   !*** ./app/assets/frontend/actions/TweetActions.jsx ***!
   \******************************************************/
@@ -345,7 +497,7 @@
 	  value: true
 	});
 	
-	var _API = __webpack_require__(/*! ../API */ 5);
+	var _API = __webpack_require__(/*! ../API */ 181);
 	
 	var _API2 = _interopRequireDefault(_API);
 	
@@ -361,7 +513,8 @@
 	};
 
 /***/ },
-/* 5 */
+
+/***/ 181:
 /*!*************************************!*\
   !*** ./app/assets/frontend/API.jsx ***!
   \*************************************/
@@ -373,7 +526,7 @@
 	  value: true
 	});
 	
-	var _ServerActions = __webpack_require__(/*! ./actions/ServerActions */ 6);
+	var _ServerActions = __webpack_require__(/*! ./actions/ServerActions */ 182);
 	
 	var _ServerActions2 = _interopRequireDefault(_ServerActions);
 	
@@ -397,7 +550,8 @@
 	};
 
 /***/ },
-/* 6 */
+
+/***/ 182:
 /*!*******************************************************!*\
   !*** ./app/assets/frontend/actions/ServerActions.jsx ***!
   \*******************************************************/
@@ -409,11 +563,11 @@
 	  value: true
 	});
 	
-	var _dispatcher = __webpack_require__(/*! ../dispatcher */ 7);
+	var _dispatcher = __webpack_require__(/*! ../dispatcher */ 183);
 	
 	var _dispatcher2 = _interopRequireDefault(_dispatcher);
 	
-	var _constants = __webpack_require__(/*! ../constants */ 12);
+	var _constants = __webpack_require__(/*! ../constants */ 186);
 	
 	var _constants2 = _interopRequireDefault(_constants);
 	
@@ -435,7 +589,8 @@
 	};
 
 /***/ },
-/* 7 */
+
+/***/ 183:
 /*!********************************************!*\
   !*** ./app/assets/frontend/dispatcher.jsx ***!
   \********************************************/
@@ -447,7 +602,7 @@
 	  value: true
 	});
 	
-	var _flux = __webpack_require__(/*! flux */ 8);
+	var _flux = __webpack_require__(/*! flux */ 184);
 	
 	var _flux2 = _interopRequireDefault(_flux);
 	
@@ -456,7 +611,8 @@
 	exports.default = new _flux2.default.Dispatcher();
 
 /***/ },
-/* 8 */
+
+/***/ 184:
 /*!*************************!*\
   !*** ./~/flux/index.js ***!
   \*************************/
@@ -471,11 +627,12 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 9);
+	module.exports.Dispatcher = __webpack_require__(/*! ./lib/Dispatcher */ 185);
 
 
 /***/ },
-/* 9 */
+
+/***/ 185:
 /*!**********************************!*\
   !*** ./~/flux/lib/Dispatcher.js ***!
   \**********************************/
@@ -500,7 +657,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 11);
+	var invariant = __webpack_require__(/*! fbjs/lib/invariant */ 8);
 	
 	var _prefix = 'ID_';
 	
@@ -712,257 +869,11 @@
 	})();
 	
 	module.exports = Dispatcher;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 10)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 3)))
 
 /***/ },
-/* 10 */
-/*!******************************!*\
-  !*** ./~/process/browser.js ***!
-  \******************************/
-/***/ function(module, exports) {
 
-	// shim for using process in browser
-	var process = module.exports = {};
-	
-	// cached from whatever global is present so that test runners that stub it
-	// don't break things.  But we need to wrap it in a try catch in case it is
-	// wrapped in strict mode code which doesn't define any globals.  It's inside a
-	// function because try/catches deoptimize in certain engines.
-	
-	var cachedSetTimeout;
-	var cachedClearTimeout;
-	
-	function defaultSetTimout() {
-	    throw new Error('setTimeout has not been defined');
-	}
-	function defaultClearTimeout () {
-	    throw new Error('clearTimeout has not been defined');
-	}
-	(function () {
-	    try {
-	        if (typeof setTimeout === 'function') {
-	            cachedSetTimeout = setTimeout;
-	        } else {
-	            cachedSetTimeout = defaultSetTimout;
-	        }
-	    } catch (e) {
-	        cachedSetTimeout = defaultSetTimout;
-	    }
-	    try {
-	        if (typeof clearTimeout === 'function') {
-	            cachedClearTimeout = clearTimeout;
-	        } else {
-	            cachedClearTimeout = defaultClearTimeout;
-	        }
-	    } catch (e) {
-	        cachedClearTimeout = defaultClearTimeout;
-	    }
-	} ())
-	function runTimeout(fun) {
-	    if (cachedSetTimeout === setTimeout) {
-	        //normal enviroments in sane situations
-	        return setTimeout(fun, 0);
-	    }
-	    // if setTimeout wasn't available but was latter defined
-	    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-	        cachedSetTimeout = setTimeout;
-	        return setTimeout(fun, 0);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedSetTimeout(fun, 0);
-	    } catch(e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-	            return cachedSetTimeout.call(null, fun, 0);
-	        } catch(e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-	            return cachedSetTimeout.call(this, fun, 0);
-	        }
-	    }
-	
-	
-	}
-	function runClearTimeout(marker) {
-	    if (cachedClearTimeout === clearTimeout) {
-	        //normal enviroments in sane situations
-	        return clearTimeout(marker);
-	    }
-	    // if clearTimeout wasn't available but was latter defined
-	    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-	        cachedClearTimeout = clearTimeout;
-	        return clearTimeout(marker);
-	    }
-	    try {
-	        // when when somebody has screwed with setTimeout but no I.E. maddness
-	        return cachedClearTimeout(marker);
-	    } catch (e){
-	        try {
-	            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-	            return cachedClearTimeout.call(null, marker);
-	        } catch (e){
-	            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-	            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-	            return cachedClearTimeout.call(this, marker);
-	        }
-	    }
-	
-	
-	
-	}
-	var queue = [];
-	var draining = false;
-	var currentQueue;
-	var queueIndex = -1;
-	
-	function cleanUpNextTick() {
-	    if (!draining || !currentQueue) {
-	        return;
-	    }
-	    draining = false;
-	    if (currentQueue.length) {
-	        queue = currentQueue.concat(queue);
-	    } else {
-	        queueIndex = -1;
-	    }
-	    if (queue.length) {
-	        drainQueue();
-	    }
-	}
-	
-	function drainQueue() {
-	    if (draining) {
-	        return;
-	    }
-	    var timeout = runTimeout(cleanUpNextTick);
-	    draining = true;
-	
-	    var len = queue.length;
-	    while(len) {
-	        currentQueue = queue;
-	        queue = [];
-	        while (++queueIndex < len) {
-	            if (currentQueue) {
-	                currentQueue[queueIndex].run();
-	            }
-	        }
-	        queueIndex = -1;
-	        len = queue.length;
-	    }
-	    currentQueue = null;
-	    draining = false;
-	    runClearTimeout(timeout);
-	}
-	
-	process.nextTick = function (fun) {
-	    var args = new Array(arguments.length - 1);
-	    if (arguments.length > 1) {
-	        for (var i = 1; i < arguments.length; i++) {
-	            args[i - 1] = arguments[i];
-	        }
-	    }
-	    queue.push(new Item(fun, args));
-	    if (queue.length === 1 && !draining) {
-	        runTimeout(drainQueue);
-	    }
-	};
-	
-	// v8 likes predictible objects
-	function Item(fun, array) {
-	    this.fun = fun;
-	    this.array = array;
-	}
-	Item.prototype.run = function () {
-	    this.fun.apply(null, this.array);
-	};
-	process.title = 'browser';
-	process.browser = true;
-	process.env = {};
-	process.argv = [];
-	process.version = ''; // empty string to avoid regexp issues
-	process.versions = {};
-	
-	function noop() {}
-	
-	process.on = noop;
-	process.addListener = noop;
-	process.once = noop;
-	process.off = noop;
-	process.removeListener = noop;
-	process.removeAllListeners = noop;
-	process.emit = noop;
-	
-	process.binding = function (name) {
-	    throw new Error('process.binding is not supported');
-	};
-	
-	process.cwd = function () { return '/' };
-	process.chdir = function (dir) {
-	    throw new Error('process.chdir is not supported');
-	};
-	process.umask = function() { return 0; };
-
-
-/***/ },
-/* 11 */
-/*!*********************************!*\
-  !*** ./~/fbjs/lib/invariant.js ***!
-  \*********************************/
-/***/ function(module, exports, __webpack_require__) {
-
-	/* WEBPACK VAR INJECTION */(function(process) {/**
-	 * Copyright (c) 2013-present, Facebook, Inc.
-	 * All rights reserved.
-	 *
-	 * This source code is licensed under the BSD-style license found in the
-	 * LICENSE file in the root directory of this source tree. An additional grant
-	 * of patent rights can be found in the PATENTS file in the same directory.
-	 *
-	 */
-	
-	'use strict';
-	
-	/**
-	 * Use invariant() to assert state which your program assumes to be true.
-	 *
-	 * Provide sprintf-style format (only %s is supported) and arguments
-	 * to provide information about what broke and what you were
-	 * expecting.
-	 *
-	 * The invariant message will be stripped in production, but the invariant
-	 * will remain to ensure logic does not differ in production.
-	 */
-	
-	function invariant(condition, format, a, b, c, d, e, f) {
-	  if (process.env.NODE_ENV !== 'production') {
-	    if (format === undefined) {
-	      throw new Error('invariant requires an error message argument');
-	    }
-	  }
-	
-	  if (!condition) {
-	    var error;
-	    if (format === undefined) {
-	      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
-	    } else {
-	      var args = [a, b, c, d, e, f];
-	      var argIndex = 0;
-	      error = new Error(format.replace(/%s/g, function () {
-	        return args[argIndex++];
-	      }));
-	      error.name = 'Invariant Violation';
-	    }
-	
-	    error.framesToPop = 1; // we don't care about invariant's own frame
-	    throw error;
-	  }
-	}
-	
-	module.exports = invariant;
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(/*! ./~/process/browser.js */ 10)))
-
-/***/ },
-/* 12 */
+/***/ 186:
 /*!*******************************************!*\
   !*** ./app/assets/frontend/constants.jsx ***!
   \*******************************************/
@@ -979,7 +890,132 @@
 	};
 
 /***/ },
-/* 13 */
+
+/***/ 187:
+/*!******************************************************!*\
+  !*** ./app/assets/frontend/components/TweetList.jsx ***!
+  \******************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _Tweet = __webpack_require__(/*! ./Tweet */ 188);
+	
+	var _Tweet2 = _interopRequireDefault(_Tweet);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var TweetList = function (_React$Component) {
+	  _inherits(TweetList, _React$Component);
+	
+	  function TweetList() {
+	    _classCallCheck(this, TweetList);
+	
+	    return _possibleConstructorReturn(this, (TweetList.__proto__ || Object.getPrototypeOf(TweetList)).apply(this, arguments));
+	  }
+	
+	  _createClass(TweetList, [{
+	    key: "render",
+	    value: function render() {
+	      var tweets = this.props.tweets.map(function (tweet) {
+	        return React.createElement(_Tweet2.default, _extends({ key: tweet.id }, tweet));
+	      });
+	      return React.createElement(
+	        "div",
+	        null,
+	        React.createElement(
+	          "ul",
+	          { className: "collection" },
+	          tweets
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return TweetList;
+	}(React.Component);
+	
+	exports.default = TweetList;
+
+/***/ },
+
+/***/ 188:
+/*!**************************************************!*\
+  !*** ./app/assets/frontend/components/Tweet.jsx ***!
+  \**************************************************/
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var Tweet = function (_React$Component) {
+	  _inherits(Tweet, _React$Component);
+	
+	  function Tweet() {
+	    _classCallCheck(this, Tweet);
+	
+	    return _possibleConstructorReturn(this, (Tweet.__proto__ || Object.getPrototypeOf(Tweet)).apply(this, arguments));
+	  }
+	
+	  _createClass(Tweet, [{
+	    key: "render",
+	    value: function render() {
+	      return React.createElement(
+	        "li",
+	        { className: "collection-item avatar" },
+	        React.createElement("img", { className: "circle", src: this.props.gravatar }),
+	        React.createElement(
+	          "span",
+	          { className: "title" },
+	          this.props.name
+	        ),
+	        React.createElement(
+	          "time",
+	          null,
+	          this.props.formattedDate
+	        ),
+	        React.createElement(
+	          "p",
+	          null,
+	          this.props.body
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return Tweet;
+	}(React.Component);
+	
+	exports.default = Tweet;
+
+/***/ },
+
+/***/ 189:
 /*!***************************************************!*\
   !*** ./app/assets/frontend/stores/TweetStore.jsx ***!
   \***************************************************/
@@ -993,15 +1029,15 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	var _dispatcher = __webpack_require__(/*! ../dispatcher */ 7);
+	var _dispatcher = __webpack_require__(/*! ../dispatcher */ 183);
 	
 	var _dispatcher2 = _interopRequireDefault(_dispatcher);
 	
-	var _constants = __webpack_require__(/*! ../constants */ 12);
+	var _constants = __webpack_require__(/*! ../constants */ 186);
 	
 	var _constants2 = _interopRequireDefault(_constants);
 	
-	var _events = __webpack_require__(/*! events */ 14);
+	var _events = __webpack_require__(/*! events */ 190);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1071,7 +1107,8 @@
 	exports.default = TweetStore;
 
 /***/ },
-/* 14 */
+
+/***/ 190:
 /*!****************************!*\
   !*** ./~/events/events.js ***!
   \****************************/
@@ -1382,5 +1419,6 @@
 
 
 /***/ }
-/******/ ]);
+
+/******/ });
 //# sourceMappingURL=bundle.js.map
